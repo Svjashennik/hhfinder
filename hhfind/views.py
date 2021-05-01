@@ -6,8 +6,12 @@ from .serializers import ReqSerializer
 import requests
 from django.utils import timezone
 from django.core.mail import send_mail
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 class ReqView(APIView):
+    permission_classes = (IsAuthenticated,)  
     def get(self, request, userid):
         us = User.objects.get(pk=userid)
         his = us.req_set.all()
@@ -19,6 +23,7 @@ class ReqView(APIView):
         return Response(True)
 
 class Reqfind(APIView):
+    permission_classes = (IsAuthenticated,)  
     def get(self, request, job=None, area=None, user=None):
         data = {'count':0, 'sal':0}
         users = User.objects.get(pk=user)
@@ -50,11 +55,16 @@ class Reqfind(APIView):
         Req(job=job, region=region, datereq=timezone.now(), user=user, rescount=rescount, ressalary=ressalary).save()
 
 
-class AccView(APIView):
-    def get(self, request, log=None, pas=None):
-        try:
-            users = User.objects.get(username=log)
-            access=[users.check_password(pas),users.pk]
-        except:
-            access = [False, None]
-        return Response(access)
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })

@@ -120,8 +120,15 @@ class Acc extends Component{
   }
 
   componentDidMount() {
-    fetch(`api/access/${this.props.log}/${this.props.pas}`)
-      .then(res => res.json())
+    fetch(`/api-token-auth/`, 
+    {
+      method:'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify({username:this.props.log, password:this.props.pas}) 
+    }).then(res => res.json())
       .then(
         (result) => {
           this.setState({

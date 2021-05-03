@@ -6,10 +6,14 @@ from .serializers import ReqSerializer
 import requests
 from django.utils import timezone
 from django.core.mail import send_mail
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 class ReqView(APIView):
-    def get(self, request, userid):
-        us = User.objects.get(pk=userid)
+    permission_classes = (IsAuthenticated,)  
+    def get(self, request):
+        us = request.user
         his = us.req_set.all()
         serializer = ReqSerializer(his, many=True)
         who = us.email
@@ -19,9 +23,10 @@ class ReqView(APIView):
         return Response(True)
 
 class Reqfind(APIView):
-    def get(self, request, job=None, area=None, user=None):
+    permission_classes = (IsAuthenticated,)  
+    def get(self, request, job=None, area=None):
         data = {'count':0, 'sal':0}
-        users = User.objects.get(pk=user)
+        users = request.user
         reg = requests.get(' https://api.hh.ru/suggests/areas', params={'text':area}).json()
         if len(reg['items'])==0:
             Reqfind.SaveReq(job, area, users, data['count'], data['sal'])
@@ -49,12 +54,3 @@ class Reqfind(APIView):
     def SaveReq(job, region, user, rescount, ressalary):
         Req(job=job, region=region, datereq=timezone.now(), user=user, rescount=rescount, ressalary=ressalary).save()
 
-
-class AccView(APIView):
-    def get(self, request, log=None, pas=None):
-        try:
-            users = User.objects.get(username=log)
-            access=[users.check_password(pas),users.pk]
-        except:
-            access = [False, None]
-        return Response(access)

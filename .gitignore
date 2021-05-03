@@ -13,7 +13,7 @@ develop-eggs/
 dist/
 downloads/
 eggs/
-.front/node_modules
+./front/node_modules
 .eggs/
 lib/
 lib64/
@@ -27,7 +27,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-./front/node_modules
+
 
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest

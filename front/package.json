@@ -1,7 +1,6 @@
 {
   "name": "front",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "dependencies": {
     "@babel/runtime": "^7.13.17",
@@ -27,5 +26,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "description": ""
 }

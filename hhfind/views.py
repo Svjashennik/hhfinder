@@ -12,8 +12,8 @@ from rest_framework.authtoken.models import Token
 
 class ReqView(APIView):
     permission_classes = (IsAuthenticated,)  
-    def get(self, request, userid):
-        us = User.objects.get(pk=userid)
+    def get(self, request):
+        us = request.user
         his = us.req_set.all()
         serializer = ReqSerializer(his, many=True)
         who = us.email
@@ -24,9 +24,9 @@ class ReqView(APIView):
 
 class Reqfind(APIView):
     permission_classes = (IsAuthenticated,)  
-    def get(self, request, job=None, area=None, user=None):
+    def get(self, request, job=None, area=None):
         data = {'count':0, 'sal':0}
-        users = User.objects.get(pk=user)
+        users = request.user
         reg = requests.get(' https://api.hh.ru/suggests/areas', params={'text':area}).json()
         if len(reg['items'])==0:
             Reqfind.SaveReq(job, area, users, data['count'], data['sal'])
@@ -54,17 +54,3 @@ class Reqfind(APIView):
     def SaveReq(job, region, user, rescount, ressalary):
         Req(job=job, region=region, datereq=timezone.now(), user=user, rescount=rescount, ressalary=ressalary).save()
 
-
-class CustomAuthToken(ObtainAuthToken):
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,
-                                           context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            'token': token.key,
-            'user_id': user.pk,
-            'email': user.email
-        })

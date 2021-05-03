@@ -21,7 +21,12 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    fetch(`api/requests/${this.props.job}/${this.props.area}/${this.props.user}`)
+    fetch(`api/requests/${this.props.job}/${this.props.area}`,
+    {
+      headers:{
+        "Authorization":`Token ${this.props.token}`
+      }
+    })
       .then(res => res.json())
       .then(
         (result) => {
@@ -67,7 +72,12 @@ class Form extends React.Component{
   }
 
   handleClick(e){
-    fetch(`/api/requests/${this.props.user}`)
+    fetch(`/api/requests/history`,
+    {
+      headers:{
+        "Authorization":`Token ${this.props.token}`
+      }
+    })
     alert('Письмо отправлено на вашу почту')
   }
   render(){
@@ -120,6 +130,7 @@ class Acc extends Component{
   }
 
   componentDidMount() {
+    let way = true
     fetch(`/api-token-auth/`, 
     {
       method:'POST',
@@ -128,12 +139,17 @@ class Acc extends Component{
         'Content-Type': 'application/json'
       },
       body:JSON.stringify({username:this.props.log, password:this.props.pas}) 
-    }).then(res => res.json())
+    }).then(res => {
+      if (!res.ok){
+        way = false
+      }
+      return res.json()})
       .then(
         (result) => {
+          console.log(result)
           this.setState({
             isLoaded: true,
-            get: result
+            get: [way,result.token]
           });
         },
         (error) => {
@@ -173,15 +189,15 @@ class M extends Component{
       pas:'',
       job:'',
       area:'',
-      user:NaN
+      user:''
     };
     this.getin = this.getin.bind(this)
     this.getUser = this.getUser.bind(this)
     this.getReq = this.getReq.bind(this)
   }
 
-  getUser(id){
-    this.setState({user:id})
+  getUser(token){
+    this.setState({user:token})
   }
 
   getin(e){
@@ -209,10 +225,10 @@ class M extends Component{
         
       <Switch>
         <Route path="/get">
-          <App user={this.state.user} job={this.state.job} area={this.state.area}/>
+          <App token={this.state.user} job={this.state.job} area={this.state.area}/>
         </Route>
         <Route path="/app">
-          <Form getReq={this.getReq} user={this.state.user} />
+          <Form getReq={this.getReq} token={this.state.user} />
         </Route>
         <Route path="/acc">
           <Acc log = {this.state.log} pas = {this.state.pas} getUser={this.getUser}/>

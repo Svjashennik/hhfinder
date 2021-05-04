@@ -9,7 +9,8 @@ from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 class ReqView(APIView):
     permission_classes = (IsAuthenticated,)  
     def get(self, request):
@@ -19,13 +20,15 @@ class ReqView(APIView):
         who = us.email
         message = f'История запросов пользователя {us.username} - {serializer.data}'
         from_email='finder00@internet.ru'
-        send_mail('История запросов', message, from_email, [who])
-        return Response(True)
+        return Response(send_mail('История запросов', message, from_email, [who]))
+    
 
 class Reqfind(APIView):
     permission_classes = (IsAuthenticated,)  
     def get(self, request, job=None, area=None):
         data = {'count':0, 'sal':0}
+        #layer = get_channel_layer()
+       # async_to_sync(layer.group_send)('events', {'type': 'events.alarm','content': {'job':job, 'area':area}})
         users = request.user
         reg = requests.get(' https://api.hh.ru/suggests/areas', params={'text':area}).json()
         if len(reg['items'])==0:

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'hhfind',
-    'channels'
+    'channels',
+    'channels_redis'
 ]
 
 REST_FRAMEWORK = {
@@ -81,7 +82,14 @@ TEMPLATES = [
 ASGI_APPLICATION = "hhapi.routing.application"
 
 
-
+HANNEL_LAYERS = {
+            'default': {
+                        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+                                'CONFIG': {
+                                                'hosts': [('redis-server-name', 8002)],
+                                                        },
+                                                            }
+                }
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -137,7 +145,11 @@ STATIC_URL = '/static/'
 
 
 DEFAULT_FROM_EMAIL = 'finder00@internet.ru'  
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_DEFAULT_REGION = 'us-east-1'
+AWS_ACCESS_KEY_ID = 'AKIA2VFDMHVA5JYYJNZ5'
+AWS_SECRET_ACCESS_KEY = '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'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-EMAIL_HOST_USER='finder00@internet.ru'
-EMAIL_HOST_PASSWORD='server_api'
+
+

@@ -67,6 +67,16 @@ class Form extends React.Component{
 		      this.handleClick = this.handleClick.bind(this)
 		    }
 	  
+	componentDidMount(){
+	
+	const chatSocket = new WebSocket(
+		            'ws://'
+		            + 'localhost:8002'
+		            + '/ws/api/hist/'
+		        );
+	console.log(chatSocket)
+	}
+
 	  handleChange(e){
 		     this.props.getReq(e)
 		    }

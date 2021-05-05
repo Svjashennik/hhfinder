@@ -30,6 +30,7 @@ class App extends React.Component {
 		        .then(res => res.json())
 		        .then(
 				        (result) => {
+						this.props.sendres({us:result.req.usname, job:this.props.job, area:this.props.area, coun:result.req.count, sal:result.req.sal})
 						          this.setState({
 								              isLoaded: true,
 								              items: result.req
@@ -63,22 +64,12 @@ class App extends React.Component {
 class Form extends React.Component{
 	  constructor(props) {
 		  super(props)
-		  this.state = {data:''}
-		  const chatSocket = new WebSocket(
-		  'ws://18.216.226.20/ws/api/hist/'
-		  )
-		  console.log(chatSocket)
-		  chatSocket.onmessage = function(e){
-		  console.log(e)
-		  const data = JSON.parse(e.data)
-		alert('kek')
-			  console.log(data)
-		this.setState({data:'gotit'})
-		  
-		  }
+		 
 		  this.handleChange = this.handleChange.bind(this)
-		      this.handleClick = this.handleClick.bind(this)
+		  this.handleClick = this.handleClick.bind(this)
 		    }
+
+		
 
 
 	  handleChange(e){
@@ -93,6 +84,7 @@ class Form extends React.Component{
 							      }
 					      })
 		      alert('Письмо отправлено на вашу почту')
+		 
 		    }
 	  render(){
 		      return (
@@ -106,7 +98,7 @@ class Form extends React.Component{
 			            <input value='Отправить данные' onClick={this.handleClick} type='button'/>
 			            <br/>
 			      		  	
-				<p id='webs' ></p>
+				<p id='webs' >{this.props.others} </p>
 
 			      	</div>
 			          )
@@ -205,13 +197,31 @@ class M extends Component{
 			            log:'',
 			            pas:'',
 			            job:'',
+			      		data:null,
 			            area:'',
-			            user:''
+			            user:'',
+			      		others:'',
 			          };
 		      this.getin = this.getin.bind(this)
 		      this.getUser = this.getUser.bind(this)
 		      this.getReq = this.getReq.bind(this)
+		  this.sendres = this.sendres.bind(this)
 		    }
+	
+	 componentDidMount(){
+		 let socket = new WebSocket('ws://18.216.226.20/ws/api/hist/')
+                socket.onmessage  = (e) => {
+	                  let res = JSON.parse(e.data).content
+	                  this.setState({others:this.state.others + `${res.us} ${res.job} ${res.area} ${res.coun} ${res.sal}` })
+	                                 }
+
+		                this.setState({data:socket})
+		         }
+
+	sendres(res){
+	this.state.data.send(JSON.stringify({us:res.us, job:res.job, area:res.area, coun:res.coun, sal:res.sal }))
+	
+	}
 
 	  getUser(token){
 		      this.setState({user:token})
@@ -242,10 +252,10 @@ class M extends Component{
 			            
 			          <Switch>
 			            <Route path="/get">
-			              <App token={this.state.user} job={this.state.job} area={this.state.area}/>
+			              <App token={this.state.user} job={this.state.job} area={this.state.area} sendres = {this.sendres} />
 			            </Route>
 			            <Route path="/app">
-			              <Form getReq={this.getReq} token={this.state.user} />
+			              <Form getReq={this.getReq} token={this.state.user} others = {this.state.others} />
 			            </Route>
 			            <Route path="/acc">
 			              <Acc log = {this.state.log} pas = {this.state.pas} getUser={this.getUser}/>

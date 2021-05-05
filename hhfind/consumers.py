@@ -26,13 +26,13 @@ class EventConsumer(JsonWebsocketConsumer):
 
     def receive_json(self, content, **kwargs):
         print("Received event: {}".format(content))
-        self.send_json(content)
+        
+        async_to_sync(self.channel_layer.group_send)('events', {'type': 'events.alarm','content': content})
+        
 
     def events_alarm(self, event):
-        send_mail('робит', 'hj,bn', 'finder00@internet.ru', ['nek1212121@gmail.com'])
-        self.send_json(
-                            {
-                                'type': 'events.alarm',
-                                'content': event['content']
-                            }
-                )
+        print('отправлено')
+        self.send_json({
+                    'type': 'events.alarm',
+                    'content': event['content']
+            })

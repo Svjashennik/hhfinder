@@ -28,8 +28,9 @@ class Reqfind(APIView):
     def get(self, request, job=None, area=None):
         data = {'count':0, 'sal':0}
         layer = get_channel_layer()
-        async_to_sync(layer.group_send)('events', {'type': 'events.alarm','content': {'job':job, 'area':area}})
+        async_to_sync(layer.group_send)('events', {'type': 'events_alarm','content': {'job':job, 'area':area}})
         users = request.user
+        data['usname']=users.username
         reg = requests.get(' https://api.hh.ru/suggests/areas', params={'text':area}).json()
         if len(reg['items'])==0:
             Reqfind.SaveReq(job, area, users, data['count'], data['sal'])

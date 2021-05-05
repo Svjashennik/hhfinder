@@ -62,20 +62,24 @@ class App extends React.Component {
 
 class Form extends React.Component{
 	  constructor(props) {
-		      super(props);
-		      this.handleChange = this.handleChange.bind(this)
+		  super(props)
+		  this.state = {data:''}
+		  const chatSocket = new WebSocket(
+		  'ws://18.216.226.20/ws/api/hist/'
+		  )
+		  console.log(chatSocket)
+		  chatSocket.onmessage = function(e){
+		  console.log(e)
+		  const data = JSON.parse(e.data)
+		alert('kek')
+			  console.log(data)
+		this.setState({data:'gotit'})
+		  
+		  }
+		  this.handleChange = this.handleChange.bind(this)
 		      this.handleClick = this.handleClick.bind(this)
 		    }
-	  
-	componentDidMount(){
-	
-	const chatSocket = new WebSocket(
-		            'ws://'
-		            + 'localhost:8002'
-		            + '/ws/api/hist/'
-		        );
-	console.log(chatSocket)
-	}
+
 
 	  handleChange(e){
 		     this.props.getReq(e)
@@ -101,7 +105,10 @@ class Form extends React.Component{
 			            <br/>
 			            <input value='Отправить данные' onClick={this.handleClick} type='button'/>
 			            <br/>
-			            </div>
+			      		  	
+				<p id='webs' ></p>
+
+			      	</div>
 			          )
 		    }
 }

@@ -27,8 +27,8 @@ class Reqfind(APIView):
     permission_classes = (IsAuthenticated,)  
     def get(self, request, job=None, area=None):
         data = {'count':0, 'sal':0}
-        #layer = get_channel_layer()
-       # async_to_sync(layer.group_send)('events', {'type': 'events.alarm','content': {'job':job, 'area':area}})
+        layer = get_channel_layer()
+        async_to_sync(layer.group_send)('events', {'type': 'events.alarm','content': {'job':job, 'area':area}})
         users = request.user
         reg = requests.get(' https://api.hh.ru/suggests/areas', params={'text':area}).json()
         if len(reg['items'])==0:
@@ -40,7 +40,9 @@ class Reqfind(APIView):
         l = r.json()
         data['count']=l['found']
         sumsal = 0
+        coun = 0
         for vac in l['items']:
+            coun+=1
             if vac['salary']['from'] != None and vac['salary']['to'] != None:
                 sumsal+= (vac['salary']['from']+vac['salary']['to'])/2
             elif vac['salary']['from'] != None:
@@ -49,7 +51,7 @@ class Reqfind(APIView):
                 sumsal+= vac['salary']['to']
         
         if data['count']!=0:
-            data['sal'] = sumsal/data['count']
+            data['sal'] = sumsal/coun
         Reqfind.SaveReq(job, area, users, data['count'], data['sal'])
         return Response({"req": data})
     

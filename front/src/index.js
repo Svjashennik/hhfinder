@@ -212,7 +212,7 @@ class M extends Component{
 		 let socket = new WebSocket('ws://18.216.226.20/ws/api/hist/')
                 socket.onmessage  = (e) => {
 	                  let res = JSON.parse(e.data).content
-	                  this.setState({others:this.state.others + `${res.us} ${res.job} ${res.area} ${res.coun} ${res.sal}` })
+	                  this.setState({others:this.state.others + `${res.us} ${res.job} ${res.area} ${res.coun} ${res.sal} \n ` })
 	                                 }
 
 		                this.setState({data:socket})
